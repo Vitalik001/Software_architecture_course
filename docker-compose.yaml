@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  facade-service:
+    build: facade-service
+    volumes:
+      - ./facade-service:/code/facade-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - logging-service
+      - messages-service
+
+  logging-service:
+    build: logging-service
+    volumes:
+      - ./logging-service:/code/logging-service
+    ports:
+      - "8081:8080"
+
+  messages-service:
+    build: messages-service
+    volumes:
+      - ./messages-service:/code/messages-service
+    ports:
+      - "8082:8080"
