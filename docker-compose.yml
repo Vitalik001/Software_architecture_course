@@ -39,6 +39,17 @@ services:
     networks:
       - hazelcast-network
 
+  client:
+    build: client
+    volumes:
+      - ./client:/client
+    depends_on:
+      - hazelcast-member1
+      - hazelcast-member2
+      - hazelcast-member3
+    networks:
+      - hazelcast-network
+
 networks:
   hazelcast-network:
     driver: bridge
