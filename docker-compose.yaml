@@ -7,20 +7,109 @@ services:
       - ./facade-service:/code/facade-service
     ports:
       - "8080:8080"
+    networks:
+      - services-network
     depends_on:
-      - logging-service
+      - logging-service-1
+      - logging-service-2
+      - logging-service-3
       - messages-service
-
-  logging-service:
-    build: logging-service
-    volumes:
-      - ./logging-service:/code/logging-service
-    ports:
-      - "8081:8080"
 
   messages-service:
     build: messages-service
     volumes:
       - ./messages-service:/code/messages-service
     ports:
+      - "8081:8080"
+    networks:
+      - services-network
+
+  logging-service-1:
+    build: logging-service
+    volumes:
+      - ./logging-service:/code/logging-service
+    ports:
       - "8082:8080"
+    networks:
+      - hazelcast-network
+      - services-network
+    environment:
+      - HAZELCAST_CLUSTER_MEMBER=hazelcast-1:5701
+    depends_on:
+      - hazelcast-1
+
+  hazelcast-1:
+    image: hazelcast/hazelcast:5.3.6
+    environment:
+      - HZ_NETWORK_PUBLICADDRESS=hazelcast-1:5701
+      - HZ_CLUSTERNAME=hazel_claster
+    networks:
+      - hazelcast-network
+    ports:
+      - "5701:5701"
+
+  logging-service-2:
+    build: logging-service
+    volumes:
+      - ./logging-service:/code/logging-service
+    ports:
+      - "8083:8080"
+    networks:
+      - hazelcast-network
+      - services-network
+    environment:
+      - HAZELCAST_CLUSTER_MEMBER=hazelcast-2:5701
+    depends_on:
+      - hazelcast-2
+
+
+  hazelcast-2:
+    image: hazelcast/hazelcast:5.3.6
+    environment:
+      - HZ_NETWORK_PUBLICADDRESS=hazelcast-2:5701
+      - HZ_CLUSTERNAME=hazel_claster
+    networks:
+      - hazelcast-network
+    ports:
+      - "5702:5701"
+
+  logging-service-3:
+    build: logging-service
+    volumes:
+      - ./logging-service:/code/logging-service
+    ports:
+      - "8084:8080"
+    networks:
+      - hazelcast-network
+      - services-network
+    environment:
+      - HAZELCAST_CLUSTER_MEMBER=hazelcast-3:5701
+    depends_on:
+      - hazelcast-3
+
+  hazelcast-3:
+    image: hazelcast/hazelcast:5.3.6
+    environment:
+      - HZ_NETWORK_PUBLICADDRESS=hazelcast-3:5701
+      - HZ_CLUSTERNAME=hazel_claster
+    networks:
+      - hazelcast-network
+    ports:
+      - "5703:5701"
+
+  management-center:
+    image: hazelcast/management-center:5.3
+    environment:
+      - MC_HTTP_PORT=8080
+    ports:
+      - "8085:8080"
+    networks:
+      - hazelcast-network
+
+networks:
+    hazelcast-network:
+      driver: bridge
+
+    services-network:
+      driver: bridge
+
