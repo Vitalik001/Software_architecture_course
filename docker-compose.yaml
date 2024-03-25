@@ -13,9 +13,22 @@ services:
       - logging-service-1
       - logging-service-2
       - logging-service-3
-      - messages-service
+      - messages-service-1
+      - messages-service-2
+      - rabbitmq
 
-  messages-service:
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - services-network
+
+  messages-service-1:
     build: messages-service
     volumes:
       - ./messages-service:/code/messages-service
@@ -23,6 +36,19 @@ services:
       - "8081:8080"
     networks:
       - services-network
+    depends_on:
+      - rabbitmq
+
+  messages-service-2:
+    build: messages-service
+    volumes:
+      - ./messages-service:/code/messages-service
+    ports:
+      - "8086:8080"
+    networks:
+      - services-network
+    depends_on:
+      - rabbitmq
 
   logging-service-1:
     build: logging-service
