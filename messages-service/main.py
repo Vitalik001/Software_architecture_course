@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import logging
 import pika
 from threading import Thread
+import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -12,11 +13,12 @@ messages = []
 
 def rabbitmq_consumer():
     global messages
+    time.sleep(15) # wait for rabbit mq
     connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
 
     channel.queue_declare(queue='message_queue')
-    #
+
     def callback(ch, method, properties, body):
         global messages
         messages.append(body.decode())
